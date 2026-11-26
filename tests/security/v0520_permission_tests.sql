@@ -4,27 +4,27 @@ BEGIN;
 
 DO $$
 DECLARE
-  v_table TEXT;
-  v_column TEXT;
+  item RECORD;
 BEGIN
-  -- Campos confidenciais não podem ser lidos diretamente por authenticated.
-  FOREACH v_table, v_column IN ARRAY ARRAY[
-    ['quotes','total_cost'],
-    ['quotes','estimated_profit'],
-    ['quotes','applied_tax_rate'],
-    ['quotes','applied_commission_rate'],
-    ['quotes','applied_margin'],
-    ['quote_items','unit_cost'],
-    ['quote_items','total_cost'],
-    ['catalog_items','purchase_cost'],
-    ['catalog_items','labor_cost'],
-    ['price_history','purchase_price'],
-    ['quote_versions','snapshot'],
-    ['company_settings','tax_config'],
-    ['company_settings','default_margin']
-  ] LOOP
-    IF has_column_privilege('authenticated', format('public.%I', v_table), v_column, 'SELECT') THEN
-      RAISE EXCEPTION 'FALHA v0.5.20: authenticated ainda pode ler %.%', v_table, v_column;
+  FOR item IN
+    SELECT * FROM (VALUES
+      ('quotes','total_cost'),
+      ('quotes','estimated_profit'),
+      ('quotes','applied_tax_rate'),
+      ('quotes','applied_commission_rate'),
+      ('quotes','applied_margin'),
+      ('quote_items','unit_cost'),
+      ('quote_items','total_cost'),
+      ('catalog_items','purchase_cost'),
+      ('catalog_items','labor_cost'),
+      ('price_history','purchase_price'),
+      ('quote_versions','snapshot'),
+      ('company_settings','tax_config'),
+      ('company_settings','default_margin')
+    ) AS sensitive(table_name, column_name)
+  LOOP
+    IF has_column_privilege('authenticated', format('public.%I', item.table_name), item.column_name, 'SELECT') THEN
+      RAISE EXCEPTION 'FALHA v0.5.20: authenticated ainda pode ler %.%', item.table_name, item.column_name;
     END IF;
   END LOOP;
 
