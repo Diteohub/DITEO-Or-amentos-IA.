@@ -1,0 +1,16 @@
+Objeto / Tabela / Rotina	GRANT authenticated	Políticas RLS (pg_policies)
+public.companies	SELECT	SELECT (is_company_member(id))
+public.company_members	SELECT	SELECT (is_company_member(company_id))
+public.customers	SELECT, INSERT, DELETE	SELECT (is_company_member), INSERT (has_min_role('sales')), DELETE (has_min_role('manager')). UPDATE via RPC update_customer.
+public.suppliers	SELECT, INSERT, UPDATE, DELETE	SELECT (is_company_member), INSERT/UPDATE (has_min_role('manager')), DELETE (has_min_role('admin'))
+public.catalog_items	SELECT, INSERT, UPDATE, DELETE	SELECT (is_company_member), INSERT/UPDATE (has_min_role('manager'))
+public.price_history	SELECT, INSERT, UPDATE, DELETE	SELECT (is_company_member), INSERT (has_min_role('manager'))
+public.quotes	SELECT	SELECT (is_company_member(company_id)). Escrita via RPCs.
+public.quote_items	SELECT	SELECT (is_company_member(company_id)). Escrita via RPCs.
+public.company_settings	SELECT	SELECT (is_company_member(company_id)). Escrita via RPC update_company_settings.
+public.quote_counters	SELECT	SELECT (is_company_member(company_id)). Escrita via create_quote_with_number.
+public.quote_versions	SELECT	SELECT (is_company_member(company_id)). Escrita via RPCs / service_role.
+public.margin_exceptions	SELECT	SELECT (has_min_role(company_id, 'manager')). Imutável por trigger.
+public.audit_logs	SELECT	SELECT (has_min_role(company_id, 'manager')).
+confirm_quote_version_stored	REVOGADO (service_role apenas)	Revalida company_members (FOR UPDATE) e existência do objeto em storage.objects.
+get_canonical_quote_snapshot	REVOGADO (service_role apenas)	Exige is_company_member(p_company_id) e bloqueia linhas canônicas.
