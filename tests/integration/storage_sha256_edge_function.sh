@@ -5,9 +5,9 @@ set -Eeuo pipefail
 : "$USER_JWT"
 : "$COMPANY_ID"
 : "$QUOTE_ID"
-VERSION_NUM="$VERSION_NUM"
+VERSION_NUM="${VERSION_NUM:-1}"
 if [[ "$SUPABASE_URL" != http://127.0.0.1:* && "$SUPABASE_URL" != http://localhost:* ]]; then echo "ERRO: use somente Supabase local." >&2; exit 2; fi
-if [[ ! "$COMPANY_ID" =~ ^[0-9a-fA-F-]{36}$ || ! "$QUOTE_ID" =~ ^[0-9a-fA-F-]{36}$ || ! "$VERSION_NUM" =~ ^[1-9][0-9]*$ ]]; then echo "ERRO: IDs/versão inválidos." >&2; exit 2; fi
+if [[ ! "$COMPANY_ID" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$ || ! "$QUOTE_ID" =~ ^[0-9a-fA-F-]{36}$ || ! "$VERSION_NUM" =~ ^[1-9][0-9]*$ ]]; then echo "ERRO: IDs/versão inválidos." >&2; exit 2; fi
 for cmd in curl jq sha256sum; do command -v "$cmd" >/dev/null || { echo "ERRO: $cmd não encontrado." >&2; exit 2; }; done
 PDF_PATH="$COMPANY_ID/quotes/$QUOTE_ID/version_$VERSION_NUM.pdf"
 TMP_DIR="$(mktemp -d)"
